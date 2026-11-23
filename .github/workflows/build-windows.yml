@@ -1,0 +1,98 @@
+# Builds the self-contained Windows release, tests it with the real model on a
+# Windows machine, and publishes it on the repository's Releases page.
+#
+#   Run it:  Actions tab -> "Build Windows app" -> Run workflow
+#   or push a version tag:  git tag v1.0.0 && git push origin v1.0.0
+name: Build Windows app
+
+on:
+  workflow_dispatch:
+    inputs:
+      llama_tag:
+        description: "llama.cpp release to bundle (blank = latest)"
+        required: false
+        default: ""
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Cache downloads (model, engine, Python)
+        uses: actions/cache@v4
+        with:
+          path: .build-cache
+          key: build-cache-${{ hashFiles('llm_service.py', 'tools/build_windows.py') }}-${{ inputs.llama_tag || 'latest' }}
+          restore-keys: build-cache-
+
+      - name: Build the release folder and zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          LLAMA_TAG: ${{ inputs.llama_tag }}
+        run: python tools/build_windows.py --out dist --cache .build-cache
+
+      - name: Smoke test with the real model (portable Python, no installs)
+        run: python tools/smoke_test.py dist/Affective-Echoes
+
+      - name: Engine log
+        if: always()
+        shell: bash
+        run: cat dist/Affective-Echoes/logs/llama-server.log 2>/dev/null | tail -n 80 || true
+
+      - name: Release notes
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json, pathlib
+          info = json.loads(pathlib.Path("dist/build-info.json").read_text())
+          outs = info["outputs"]
+          split = len(outs) > 1
+          lines = [
+            f"## Affective Echoes {info['app_version']} for Windows",
+            "",
+            "Self-contained: no Python, Ollama, API key or drivers to install.",
+            "",
+            "### Install",
+            f"1. Download **{outs[0]}**" + (f" and **{outs[1]}**" if split else "") + ".",
+            "2. Right-click the zip, choose **Extract All**, and open the **Affective-Echoes** folder.",
+          ]
+          if split:
+            lines.append(f"3. Put **{outs[1]}** into the **models** folder (or skip this: the app offers to download it).")
+          lines += [
+            f"{'4' if split else '3'}. Double-click **Start Affective Echoes (Windows).bat**. Your browser opens the console;",
+            "   the built-in model loads in about a minute. Use Chrome or Edge.",
+            "",
+            "If Windows SmartScreen warns about the .bat file, click **More info** then **Run anyway**.",
+            "",
+            "### What's inside",
+            f"- Built-in model: Llama 3.2 3B Instruct (Q4_K_M), runs on the computer, GPU if available, otherwise CPU",
+            f"- llama.cpp {info['llama_cpp_release']}, portable Python {info['python']}",
+            f"- Model SHA-256: `{info['model_sha256']}`",
+            "",
+            "Built with Llama. See LICENSES/ in the zip.",
+          ]
+          pathlib.Path("dist/RELEASE_NOTES.md").write_text("\n".join(lines))
+          PY
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_type == 'tag' && github.ref_name || format('build-{0}', github.run_number) }}
+          name: ${{ github.ref_type == 'tag' && format('Affective Echoes {0}', github.ref_name) || format('Affective Echoes (build {0})', github.run_number) }}
+          prerelease: ${{ github.ref_type != 'tag' }}
+          body_path: dist/RELEASE_NOTES.md
+          files: |
+            dist/*.zip
+            dist/*.gguf
+            dist/SHA256SUMS.txt
