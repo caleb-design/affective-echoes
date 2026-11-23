@@ -228,6 +228,18 @@ produced it, and LLM messages include the exact system prompt used.
 The bot opens every phase with a new topic from `topics`, and moves to the next topic after
 4 replies or 60 s of silence (counted from when Alex stops speaking).
 
+**Keeping the built-in model on protocol.** The prompts were tuned against the real Llama 3.2 3B:
+- **Shame:** Alex's first reply in each Shame part is the fixed standard question ("what standard
+  do you hold yourself to in discussions like this?"), logged with `line: "standard_question"`.
+  Later replies point out the gap between that standard and the participant's answers.
+- **Anger and Shame** prompts give the model concrete opening lines, because a small model left to
+  itself tends to soften criticism into praise.
+- **Other-mediated echo:** the echo instruction comes last in the prompt, where small models follow it
+  most reliably. If a reply still leaves out the reflection, or reflects the wrong feeling, the app
+  adds the same scripted reflection the fallback lines use (for example "You sound a little tense
+  about this.") and logs `echo_added: true`, so every participant in that condition gets the echo.
+  The pause line is never changed.
+
 ### Turn-taking
 
 - **Waiting for the participant:** a spoken answer only counts as finished after 2.5 s of
