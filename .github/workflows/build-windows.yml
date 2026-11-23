@@ -22,6 +22,8 @@ jobs:
   windows:
     runs-on: windows-latest
     timeout-minutes: 120
+    env:
+      PYTHONUTF8: "1"        # read/write files as UTF-8 on Windows
     steps:
       - uses: actions/checkout@v4
 
