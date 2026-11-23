@@ -1,0 +1,10 @@
+.env
+data/
+logs/
+models/*.gguf
+models/*.part
+bin/
+dist/
+.build-cache/
+__pycache__/
+*.pyc
