@@ -38,6 +38,8 @@ from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
+if str(ROOT) not in sys.path:   # the portable Windows Python doesn't add the script's folder itself
+    sys.path.insert(0, str(ROOT))
 PUBLIC = ROOT / "public"
 DATA = ROOT / "data"
 
