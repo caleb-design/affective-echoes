@@ -164,10 +164,10 @@ def get_python(out: Path, cache: Path):
     pth = next(dest.glob("python3*._pth"), None)
     if not pth:
         raise SystemExit("The portable Python has no ._pth file; unexpected download.")
-    lines = [l for l in pth.read_text().splitlines() if l.strip() != "../.."]
+    lines = [l for l in pth.read_text(encoding="utf-8").splitlines() if l.strip() != "../.."]
     # Let the portable Python import the app's own modules (llm_service) from the app folder.
     lines.insert(0, "../..")
-    pth.write_text("\n".join(lines) + "\n")
+    pth.write_text("\n".join(lines) + "\n", encoding="utf-8")
     log(f"  portable Python ready ({pth.name} points at the app folder)")
 
 
@@ -232,7 +232,7 @@ def make_zip(folder: Path, zip_path: Path, include_model=True):
 
 
 def app_version():
-    m = re.search(r'version:\s*"([^"]+)"', (ROOT / "public" / "config.js").read_text())
+    m = re.search(r'version:\s*"([^"]+)"', (ROOT / "public" / "config.js").read_text(encoding="utf-8"))
     return m.group(1) if m else "0.0.0"
 
 
@@ -265,7 +265,7 @@ def main():
     info = {"app_version": version, "built_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
             "llama_cpp_release": tag, "python": PY_VERSION, "model_file": None if a.no_model else llm_service.MODEL_FILE,
             "model_sha256": model_sha}
-    (folder / "build-info.json").write_text(json.dumps(info, indent=2))
+    (folder / "build-info.json").write_text(json.dumps(info, indent=2), encoding="utf-8")
 
     stem = f"Affective-Echoes-Windows-v{version}"
     full = out_root / f"{stem}.zip"
@@ -282,8 +282,8 @@ def main():
         full.unlink()
         outputs = [small, model_copy]
     sums = out_root / "SHA256SUMS.txt"
-    sums.write_text("".join(f"{sha256_file(p)}  {p.name}\n" for p in outputs))
-    (out_root / "build-info.json").write_text(json.dumps({**info, "outputs": [p.name for p in outputs]}, indent=2))
+    sums.write_text("".join(f"{sha256_file(p)}  {p.name}\n" for p in outputs), encoding="utf-8")
+    (out_root / "build-info.json").write_text(json.dumps({**info, "outputs": [p.name for p in outputs]}, indent=2), encoding="utf-8")
     log("done: " + ", ".join(p.name for p in outputs))
 
 
