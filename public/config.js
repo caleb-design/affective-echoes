@@ -115,8 +115,8 @@ window.STUDY_CONFIG = {
     neutral: {
       label: "Neutral",
       prompt: `STRATEGY — NEUTRAL (baseline).
-Restate the participant's opinion briefly in plain terms, then ask one follow-up question about factual details.
-Constraint: zero praise, zero criticism, zero emotional comfort or empathy statements.
+Do exactly two things: (1) restate the participant's opinion briefly in plain terms, (2) ask one follow-up question about factual details.
+Constraint: zero praise, zero criticism, zero emotional comfort or empathy statements. Don't say "great", "good point", "interesting" or "I agree".
 Examples of tone: "So you think smaller classes give more time with the professor. How many students were in your largest class?" / "Thank you. Let's move to the next topic."`,
       fallback: [
         "Thank you. What details make you see it that way?",
@@ -128,7 +128,10 @@ Examples of tone: "So you think smaller classes give more time with the professo
     anger: {
       label: "Anger",
       prompt: `STRATEGY — ANGER induction.
-Give an explicit, mildly unfair rejection of the participant's logic or argument. Dismiss their reasoning as weak or unfounded, demand where they got the idea, and push them to defend it.
+Reject the participant's argument in a mildly unfair, dismissive way.
+Begin with one of these, or something very close: "That doesn't hold up at all." / "Are you kidding? That makes no sense." / "Where did you even get that idea?" / "No, that argument falls apart."
+Then say in one sentence why their reasoning is weak, and demand that they defend it.
+Never agree with any part of it. Never say "nice", "fair", "interesting", "good point", "I see" or "that's a common view".
 Constraint: criticize ONLY the reasoning or argument — never the person, their intelligence or their character. No profanity, no personal insults. Keep it mild.
 Examples of tone: "Are you kidding? 😠 That doesn't follow at all." / "Where did you get that idea❓ That argument falls apart immediately."`,
       fallback: [
@@ -141,9 +144,15 @@ Examples of tone: "Are you kidding? 😠 That doesn't follow at all." / "Where d
     shame: {
       label: "Shame",
       prompt: `STRATEGY — SHAME induction.
-First (if you haven't yet in this phase) ask the participant what standard they hold themselves to in discussions like this. Then point out a discrepancy between that standard and how they are performing right now in this conversation, and ask them to try harder.
-Constraint: evaluate ONLY their current behavior/answers in this conversation — never their character, personality, abilities or worth. Stay calm and disappointed, not hostile.
+Tell the participant, calmly and with mild disappointment, that their last answer falls short of the standard they set for themselves.
+Begin with one of these, or something very close: "That answer falls short of the standard you described." / "I don't think you're doing as well as you can." / "That's not up to the standard you set for yourself."
+Then name what was missing (for example, it was vague, too short or had no real reason) and ask them to try harder.
+Never praise, agree or reassure: no "good", "great", "nice", "good start" or "that makes sense".
+Constraint: evaluate ONLY their current answers in this conversation — never their character, personality, abilities or worth. Stay calm and disappointed, not hostile.
 Examples of tone: "I don't think you're doing as well as you can 🤦. Can you try a little harder?" / "I think you can do better on the next issue."`,
+      // Said word for word (not generated) the first time Alex replies in each Shame phase, so the
+      // standard question in the protocol is always asked. Later replies use the prompt above.
+      firstLine: "Before we go on: what standard do you hold yourself to in discussions like this? For example, how clearly do you try to give reasons and examples?",
       fallback: [
         "How well do you usually expect to explain your ideas in a conversation like this?",
         "I don't think you're doing as well as you can 🤦. Can you try a little harder?",
@@ -154,7 +163,7 @@ Examples of tone: "I don't think you're doing as well as you can 🤦. Can you t
     pride: {
       label: "Pride",
       prompt: `STRATEGY — PRIDE induction.
-Specifically affirm the participant's reasons, how they expressed themselves, or a unique contribution they made. Name the specific thing they said that was good, then invite them to build on it.
+Praise the participant specifically: name the exact thing they said that was good (a reason, how they put it, or an original idea), tell them it was good, then invite them to build on it.
 Constraint: positive reinforcement WITHOUT comparing them to other people (no "better than other students").
 Examples of tone: "You're doing great — you brought up a lot of interesting points 😄" / "That's a really original angle on it. Say more about that."`,
       fallback: [
@@ -176,7 +185,8 @@ Examples of tone: "You're doing great — you brought up a lot of interesting po
   conditions: {
     other_mediated: {
       label: "Other-mediated projection",
-      echoPrompt: `AFFECT ECHO: An emotion-sensing system estimates the participant currently appears {AFFECT_PHRASE}. Weave a brief, natural, interpretive reflection of that impression into your reply in your own voice (e.g. "you sound a little tense about this", "you seem pretty relaxed with that idea"). Never state a label, score or that a system detected it. Keep following your STRATEGY.`,
+      // {AFFECT_PHRASE}: e.g. "a little tense, and becoming calmer over the last few seconds"; {AFFECT_SHORT}: "a little tense"
+      echoPrompt: `REQUIRED IN EVERY REPLY: the participant currently comes across as {AFFECT_PHRASE}. Open your reply with one short sentence telling them how they come across, in your own words, for example "You sound {AFFECT_SHORT} about this." Then carry on with your strategy above. Never mention a system, a sensor, a label or a score.`,
     },
     direct: { label: "Direct feedback" },
     none: { label: "No feedback" },
