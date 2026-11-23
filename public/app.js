@@ -657,13 +657,25 @@
     const strat = C.strategies[S.strategy] || C.strategies.neutral;
     const snapshot = engine.snapshot();
     let echoPhrase = null;
-    let system = `${C.sharedRules}\n\n${strat.prompt}\n\nCurrent topic: "${S.topic}"`;
+    const stratPrompt = strat.prompt;
+    let system = `${C.sharedRules}\n\n${stratPrompt}\n\nCurrent topic: "${S.topic}"`;
     if (S.condition === "other_mediated") {
+      // The echo goes last: small local models follow the most recent instruction most reliably.
       echoPhrase = engine.phrase();
-      system += "\n\n" + C.conditions.other_mediated.echoPrompt.replace("{AFFECT_PHRASE}", echoPhrase);
+      system += "\n\n" + C.conditions.other_mediated.echoPrompt
+        .replaceAll("{AFFECT_PHRASE}", echoPhrase)
+        .replaceAll("{AFFECT_SHORT}", echoPhrase.split(",")[0]);
     }
     const t0 = perf();
     const meta = { kind: "reply", strategy_used: S.strategy, echo_phrase: echoPhrase, affect_at_generation: snapshot };
+    if (strat.firstLine) {             // Shame: ask about the participant's standard first, word for word
+      const phaseId = curPhase()?.id;
+      const asked = S.transcript.some((t) => t.speaker === "bot" && t.phase === phaseId && t.text.includes(strat.firstLine));
+      if (!asked) {
+        const text = (echoPhrase ? scriptedEcho(snapshot.label) : "") + strat.firstLine;
+        return { text, meta: { ...meta, engine_used: "fixed", line: "standard_question", latency_ms: 0 } };
+      }
+    }
 
     if (S.engine === "llm" && S.serverOk && S.serverInfo && S.serverInfo.llm) {
       try {
@@ -674,7 +686,19 @@
         });
         const d = await r.json();
         if (!r.ok || !d.text) throw new Error(d.error || "empty reply");
-        return { text: d.text.trim(), meta: { ...meta, engine_used: "llm", latency_ms: Math.round(perf() - t0), system_prompt: system } };
+        let text = d.text.trim();
+        // Other-mediated condition: make sure the affect reflection reaches the participant even
+        // if the model skipped it, by adding the same scripted sentence the fallback lines use.
+        let echoAdded = false;
+        if (echoPhrase && !isExitLine(text) && !echoPresent(text, snapshot.label)) {
+          const add = scriptedEcho(snapshot.label);
+          if (add) {
+            // drop an opening reflection that names the wrong feeling, then add the right one
+            text = add + (text.replace(OPENING_REFLECTION, "").trim() || text);
+            echoAdded = true;
+          }
+        }
+        return { text, meta: { ...meta, engine_used: "llm", echo_added: echoAdded, latency_ms: Math.round(perf() - t0), system_prompt: system } };
       } catch (e) {
         log("llm_error", { error: String(e.message || e) });
       }
@@ -695,6 +719,25 @@
     }
     while (out.length && out[0].role !== "user") out.shift();
     return out;
+  }
+
+  // Words that count as reflecting each affect label back to the participant
+  const ECHO_WORDS = {
+    tense: /\b(tense|tension|stress|on edge|uneasy|anxious|nervous|wound up|uptight)/i,
+    irritated: /\b(irritat|bother|annoy|frustrat|fed up|worked up|agitated|upset)/i,
+    subdued: /\b(subdued|low|down|flat|quiet|deflated|tired|muted|unenthusiastic)/i,
+    upbeat: /\b(upbeat|energi|excited|enthusias|lively|animated|positive|cheerful|happy)/i,
+    warm: /\b(relaxed|easygoing|easy-going|warm|content|comfortable|at ease|laid[- ]back)/i,
+    calm: /\b(calm|relaxed|steady|composed|at ease|settled|laid[- ]back)/i,
+    alert: /\b(alert|focused|engaged|attentive|sharp|keen|switched on|tuned in)/i,
+  };
+  const OPENING_REFLECTION = /^(you (sound|seem|look|come across|appear)|it (sounds|seems|looks) like you)[^.!?]*[.!?]\s*/i;
+  function echoPresent(text, label) {
+    const re = ECHO_WORDS[label];
+    return !re || re.test(text);      // "neutral" (no pattern) never needs adding
+  }
+  function isExitLine(text) {
+    return /researcher will be with you/i.test(text);
   }
 
   function scriptedEcho(label) {
@@ -1370,5 +1413,5 @@
   }
 
   // Expose for debugging / automated checks
-  window.__AE = { S, handleUser, showProbe, nextPhase, endSession, get engine() { return engine; } };
+  window.__AE = { S, handleUser, showProbe, nextPhase, endSession, generateReply, get engine() { return engine; } };
 })();
