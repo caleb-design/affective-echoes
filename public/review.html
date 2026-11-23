@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light" />
+  <title>Sessions | Affective Echoes</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' fill='none'%3E%3Ccircle cx='16' cy='16' r='5' fill='%232A4A63'/%3E%3Ccircle cx='16' cy='16' r='9.5' stroke='%232A4A63' stroke-width='1.8' opacity='.55'/%3E%3Ccircle cx='16' cy='16' r='14' stroke='%232A4A63' stroke-width='1.4' opacity='.25'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="review.css" />
+</head>
+<body class="rv">
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-echo" viewBox="0 0 32 32" fill="none">
+    <circle cx="16" cy="16" r="5" fill="currentColor"/>
+    <circle cx="16" cy="16" r="9.5" stroke="currentColor" stroke-width="1.8" opacity=".55"/>
+    <circle cx="16" cy="16" r="14" stroke="currentColor" stroke-width="1.4" opacity=".25"/>
+  </symbol>
+  <symbol id="i-console" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><path d="M8 9.5h8M8 13h5"/><circle cx="16.5" cy="15.5" r="1" fill="currentColor"/>
+  </symbol>
+  <symbol id="i-sessions" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M4 18.5l4.5-6 3.5 3.5 4-6.5 4 4"/><path d="M4 4.5v15h16"/>
+  </symbol>
+  <symbol id="i-overview" viewBox="0 0 32 32" fill="none">
+    <circle cx="16" cy="16" r="4" fill="currentColor"/>
+    <circle cx="16" cy="16" r="8.5" stroke="currentColor" stroke-width="2" opacity=".6"/>
+    <circle cx="16" cy="16" r="13" stroke="currentColor" stroke-width="1.6" opacity=".3"/>
+  </symbol>
+  <symbol id="i-back" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M19 12H6M11 6l-6 6 6 6"/>
+  </symbol>
+  <symbol id="i-file" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M14 3.5H7a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8.5z"/><path d="M14 3.5v5h5"/>
+  </symbol>
+  <symbol id="i-download" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 4v11M7 10.5l5 5 5-5M5 20h14"/>
+  </symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3M19.5 4.5v4h-4"/>
+  </symbol>
+</svg>
+
+<header class="rv-top">
+  <a class="brand brand-sm" href="overview.html">
+    <svg class="brand-mark"><use href="#i-echo"/></svg>
+    <span class="brand-name">Affective Echoes</span>
+  </a>
+  <nav class="topnav" aria-label="Researcher views">
+    <a href="index.html"><svg class="ico"><use href="#i-console"/></svg>Run a session</a>
+    <a href="review.html" aria-current="page"><svg class="ico"><use href="#i-sessions"/></svg>Sessions and review</a>
+    <a href="overview.html"><svg class="ico"><use href="#i-overview"/></svg>Project overview</a>
+  </nav>
+</header>
+
+<main class="rv-main">
+  <!-- ============ LIBRARY ============ -->
+  <section id="library" class="rv-view" aria-labelledby="libTitle">
+    <div class="rv-head">
+      <div>
+        <h1 id="libTitle">Sessions</h1>
+        <p>Every session the local server has saved. Open one to see how the participant's affect moved, what they reported, and what was said.</p>
+      </div>
+      <div class="rv-head-actions">
+        <button class="btn btn-primary hidden" id="btnExample" type="button">View a simulated example</button>
+        <button class="btn btn-quiet" id="btnRefresh" type="button"><svg class="ico"><use href="#i-refresh"/></svg>Refresh</button>
+        <label class="btn btn-quiet file-btn"><svg class="ico"><use href="#i-file"/></svg>Open a downloaded file<input type="file" id="fileInput" accept=".json,.jsonl" /></label>
+      </div>
+    </div>
+
+    <div class="lib-grid">
+      <aside class="balance" aria-labelledby="balTitle">
+        <h2 id="balTitle">Condition balance</h2>
+        <p class="balance-sub">Completed sessions, excluding demos and simulations.</p>
+        <div class="balance-bars" id="balanceBars"></div>
+        <p class="balance-next" id="balanceNext"></p>
+      </aside>
+
+      <div class="lib-list">
+        <div class="filters" role="toolbar" aria-label="Filter sessions">
+          <div class="tabs" role="tablist" id="condTabs">
+            <button role="tab" aria-selected="true" data-cond="all">All</button>
+            <button role="tab" aria-selected="false" data-cond="other_mediated">Other-mediated</button>
+            <button role="tab" aria-selected="false" data-cond="direct">Direct</button>
+            <button role="tab" aria-selected="false" data-cond="none">No feedback</button>
+          </div>
+          <label class="search"><span class="sr-only">Search by participant</span><input id="search" type="search" placeholder="Search participant ID" autocomplete="off" /></label>
+          <label class="check toggle"><input type="checkbox" id="showDemos" checked /><span>Show demos</span></label>
+        </div>
+
+        <div class="table-wrap">
+          <table class="rv-table" id="sessionTable">
+            <thead>
+              <tr>
+                <th scope="col">Participant</th>
+                <th scope="col">Condition</th>
+                <th scope="col">Date</th>
+                <th scope="col" class="num">Length</th>
+                <th scope="col" class="num">Check-ins</th>
+                <th scope="col" class="num">Interruptions</th>
+                <th scope="col">Status</th>
+              </tr>
+            </thead>
+            <tbody id="sessionRows"></tbody>
+          </table>
+          <div class="empty hidden" id="emptyState">
+            <svg class="empty-mark"><use href="#i-echo"/></svg>
+            <h2 id="emptyTitle">No sessions yet</h2>
+            <p id="emptyText">Sessions appear here as soon as one starts. Run your first session from the console, or open a file you downloaded at the end of a session.</p>
+            <a class="btn btn-primary" href="index.html" id="emptyCta">Run a session</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ DETAIL ============ -->
+  <section id="detail" class="rv-view hidden" aria-labelledby="dTitle">
+    <a class="back-link" href="#" id="backLink"><svg class="ico"><use href="#i-back"/></svg>All sessions</a>
+
+    <div class="d-head">
+      <div>
+        <h1 id="dTitle" class="mono">P000</h1>
+        <p class="d-meta" id="dMeta"></p>
+      </div>
+      <div class="d-actions">
+        <button class="btn btn-quiet" id="btnProbesCsv" type="button"><svg class="ico"><use href="#i-download"/></svg>Check-ins (CSV)</button>
+        <button class="btn btn-quiet" id="btnAffectCsv" type="button"><svg class="ico"><use href="#i-download"/></svg>Affect samples (CSV)</button>
+      </div>
+    </div>
+
+    <dl class="metrics" id="metrics"></dl>
+
+    <section class="panel chart-panel" aria-labelledby="chartTitle">
+      <div class="panel-head">
+        <div>
+          <h2 id="chartTitle">Affect over the session</h2>
+          <p>Lines are the system's estimate. Dots are what the participant reported in each check-in, rescaled to the same −1 to +1 range.</p>
+        </div>
+        <ul class="legend" aria-label="Legend">
+          <li><span class="sw sw-line" style="--c: var(--s1)"></span>Estimated pleasantness</li>
+          <li><span class="sw sw-dot" style="--c: var(--s1)"></span>Reported pleasantness</li>
+          <li><span class="sw sw-line" style="--c: var(--s2)"></span>Estimated activation</li>
+          <li><span class="sw sw-dot" style="--c: var(--s2)"></span>Reported activation</li>
+        </ul>
+      </div>
+      <div class="chart" id="chart">
+        <svg id="chartSvg" role="img" aria-labelledby="chartTitle"></svg>
+        <div class="tip hidden" id="tip" role="status"></div>
+      </div>
+      <p class="chart-hint">Hover to read values. Click anywhere on the chart to jump the transcript to that moment.</p>
+    </section>
+
+    <div class="d-grid">
+      <section class="panel" aria-labelledby="probeTitleH">
+        <div class="panel-head">
+          <div>
+            <h2 id="probeTitleH">Check-ins</h2>
+            <p>Agreement compares each report with the system's average estimate over the 30 seconds before the check-in appeared.</p>
+          </div>
+        </div>
+        <div class="probe-table-wrap">
+          <table class="rv-table probe-table" id="probeTable">
+            <thead>
+              <tr>
+                <th scope="col">Time</th>
+                <th scope="col">Part</th>
+                <th scope="col" class="num">Pleasant</th>
+                <th scope="col" class="num">Activated</th>
+                <th scope="col" class="num">Noticed</th>
+                <th scope="col" class="num">Agreement</th>
+              </tr>
+            </thead>
+            <tbody id="probeRows"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="panel transcript-panel" aria-labelledby="trTitle">
+        <div class="panel-head">
+          <div>
+            <h2 id="trTitle">Transcript</h2>
+            <p id="trSub">Everything Alex and the participant said, with the part it happened in.</p>
+          </div>
+          <label class="field tr-filter">
+            <span class="sr-only">Show part</span>
+            <select id="trFilter"><option value="all">All parts</option></select>
+          </label>
+        </div>
+        <ol class="transcript" id="transcript" tabindex="0" aria-labelledby="trTitle"></ol>
+      </section>
+    </div>
+
+    <p class="caveat">The agreement figures here compare reports with this app's own face, voice and word estimate. The study's planned analysis compares reports with EmotiBit and EEG signals, which are recorded separately.</p>
+  </section>
+</main>
+
+<nav class="bottom-nav" aria-label="Researcher views">
+  <a href="index.html"><svg class="ico"><use href="#i-console"/></svg>Run</a>
+  <a href="review.html" aria-current="page"><svg class="ico"><use href="#i-sessions"/></svg>Sessions</a>
+  <a href="overview.html"><svg class="ico"><use href="#i-overview"/></svg>Overview</a>
+</nav>
+
+<div id="toast" class="toast hidden" role="status"></div>
+<script src="config.js"></script>
+<script src="review.js"></script>
+</body>
+</html>

@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light" />
+  <title>Affective Echoes</title>
+  <meta name="description" content="A research platform that tests whether an AI conversation partner can help people notice their own emotions by reflecting them back in its words." />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' fill='none'%3E%3Ccircle cx='16' cy='16' r='5' fill='%232A4A63'/%3E%3Ccircle cx='16' cy='16' r='9.5' stroke='%232A4A63' stroke-width='1.8' opacity='.55'/%3E%3Ccircle cx='16' cy='16' r='14' stroke='%232A4A63' stroke-width='1.4' opacity='.25'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="review.css" />
+  <link rel="stylesheet" href="overview.css" />
+</head>
+<body class="rv ov">
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-echo" viewBox="0 0 32 32" fill="none">
+    <circle cx="16" cy="16" r="5" fill="currentColor"/>
+    <circle cx="16" cy="16" r="9.5" stroke="currentColor" stroke-width="1.8" opacity=".55"/>
+    <circle cx="16" cy="16" r="14" stroke="currentColor" stroke-width="1.4" opacity=".25"/>
+  </symbol>
+  <symbol id="i-console" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><path d="M8 9.5h8M8 13h5"/><circle cx="16.5" cy="15.5" r="1" fill="currentColor"/>
+  </symbol>
+  <symbol id="i-sessions" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M4 18.5l4.5-6 3.5 3.5 4-6.5 4 4"/><path d="M4 4.5v15h16"/>
+  </symbol>
+  <symbol id="i-overview" viewBox="0 0 32 32" fill="none">
+    <circle cx="16" cy="16" r="4" fill="currentColor"/>
+    <circle cx="16" cy="16" r="8.5" stroke="currentColor" stroke-width="2" opacity=".6"/>
+    <circle cx="16" cy="16" r="13" stroke="currentColor" stroke-width="1.6" opacity=".3"/>
+  </symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M5 12h13M13 6l6 6-6 6"/>
+  </symbol>
+</svg>
+
+<header class="rv-top">
+  <a class="brand brand-sm" href="overview.html">
+    <svg class="brand-mark"><use href="#i-echo"/></svg>
+    <span class="brand-name">Affective Echoes</span>
+  </a>
+  <nav class="topnav" aria-label="Researcher views">
+    <a href="index.html"><svg class="ico"><use href="#i-console"/></svg>Run a session</a>
+    <a href="review.html"><svg class="ico"><use href="#i-sessions"/></svg>Sessions and review</a>
+    <a href="overview.html" aria-current="page"><svg class="ico"><use href="#i-overview"/></svg>Project overview</a>
+  </nav>
+</header>
+
+<main>
+  <!-- ============ HERO: the manipulation, live ============ -->
+  <section class="hero ov-wrap" aria-labelledby="heroTitle">
+    <div class="hero-copy">
+      <h1 id="heroTitle">When an AI reflects your feelings back, do you notice them more?</h1>
+      <p class="hero-lede">Affective Echoes runs live video conversations between a participant and Alex, an AI partner. It estimates how the participant feels from their face, voice and words, then shows that estimate back in one of three ways. The study asks which way helps people notice their own emotional changes.</p>
+      <div class="hero-cta">
+        <a class="btn btn-primary btn-lg" href="index.html">Open the console</a>
+        <a class="btn btn-quiet btn-lg" href="review.html">See session review<svg class="ico"><use href="#i-arrow"/></svg></a>
+      </div>
+    </div>
+
+    <div class="preview" aria-labelledby="pvTitle">
+      <div class="pv-head">
+        <h2 id="pvTitle">Try it: one feeling, three conditions</h2>
+        <p>Drag the point to set how a participant feels. The panel shows what they would see.</p>
+      </div>
+      <div class="pv-body">
+        <div class="pad-wrap">
+          <div class="pad" id="pad" role="slider" tabindex="0"
+               aria-label="Simulated feeling. Arrow keys change pleasantness and activation."
+               aria-valuetext="Neutral">
+            <span class="pad-axis pad-x"></span><span class="pad-axis pad-y"></span>
+            <span class="pad-lbl l-top">Activated</span><span class="pad-lbl l-bot">Calm</span>
+            <span class="pad-lbl l-left">Unpleasant</span><span class="pad-lbl l-right">Pleasant</span>
+            <span class="pad-dot" id="padDot"></span>
+          </div>
+          <p class="pad-read mono" id="padRead">pleasant +0.00  activated +0.00</p>
+        </div>
+
+        <div class="pv-out">
+          <div class="tabs pv-tabs" role="tablist" id="pvTabs">
+            <button role="tab" aria-selected="true" data-cond="other_mediated">Other-mediated</button>
+            <button role="tab" aria-selected="false" data-cond="direct">Direct</button>
+            <button role="tab" aria-selected="false" data-cond="none">No feedback</button>
+          </div>
+
+          <div class="pv-stage" id="pvStage" aria-live="polite">
+            <div class="pv-sub" id="pvSub">
+              <span class="pv-who">Alex</span>
+              <p id="pvLine">Is it better to study alone or in a group?</p>
+            </div>
+            <div class="pv-direct hidden" id="pvDirect">
+              <div class="pvd-label" id="pvdLabel">Neutral</div>
+              <div class="pvd-bars">
+                <div><span>Pleasantness</span><span class="bar"><b id="pvdV"></b></span></div>
+                <div><span>Activation</span><span class="bar"><b id="pvdA"></b></span></div>
+              </div>
+            </div>
+          </div>
+          <p class="pv-note" id="pvNote"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SESSION FLOW (a real sequence) ============ -->
+  <section class="ov-section ov-wrap reveal" aria-labelledby="flowTitle">
+    <div class="sec-head">
+      <h2 id="flowTitle">One session, about 36 minutes in the app</h2>
+      <p>Each participant gets one feedback condition for the whole session and meets all three emotional styles, in a counterbalanced order. Calm stretches before and after each style give clear changes to notice.</p>
+    </div>
+    <div class="flow-bar" id="flowBar" aria-hidden="true"></div>
+    <ol class="flow">
+      <li><span class="flow-t mono">5 min</span><h3>Rest</h3><p>Sitting quietly with a fixation cross, while EmotiBit and EEG record a baseline.</p></li>
+      <li><span class="flow-t mono">2 min</span><h3>Practice</h3><p>A neutral warm-up conversation, so the participant learns how talking with Alex works.</p></li>
+      <li><span class="flow-t mono">3 × 10 min</span><h3>Three parts</h3><p>Each part goes from calm to emotional and back: 2 minutes neutral, 5 minutes of anger, shame or pride, then 2 minutes of recovery.</p></li>
+      <li><span class="flow-t mono">every 1–2 min</span><h3>Check-ins</h3><p>During each emotional stretch, a few sliders ask how the participant feels. The conversation pauses while they answer.</p></li>
+      <li><span class="flow-t mono">at the end</span><h3>Debrief</h3><p>The participant learns that Alex's critical or flattering replies were scripted, not a real judgment of them.</p></li>
+    </ol>
+  </section>
+
+  <!-- ============ BENTO: what's inside ============ -->
+  <section class="ov-section ov-wrap reveal" aria-labelledby="insideTitle">
+    <div class="sec-head">
+      <h2 id="insideTitle">What's inside</h2>
+      <p>Everything runs on the lab computer: a small Python server and a browser page. Video and affect estimates stay on that computer. Two parts use the internet: Chrome's speech recognition, and the language model if it's a cloud service rather than a local one.</p>
+    </div>
+
+    <div class="bento">
+      <article class="cell cell-detect">
+        <h3>Reads three signals at once</h3>
+        <p>Facial expression from the webcam, loudness and pitch from the microphone, and the words the participant says. They're combined twice a second into one estimate of pleasantness and activation.</p>
+        <div class="signals" aria-hidden="true">
+          <div><span>Face</span><i style="--w:50%"></i></div>
+          <div><span>Voice</span><i style="--w:25%"></i></div>
+          <div><span>Words</span><i style="--w:25%"></i></div>
+        </div>
+        <p class="cell-foot">A research model trained on CMU-MOSEI can replace the built-in estimate without changing the app.</p>
+      </article>
+
+      <article class="cell cell-strat">
+        <h3>Four ways Alex responds</h3>
+        <div class="tabs strat-tabs" role="tablist" id="stratTabs">
+          <button role="tab" aria-selected="true" data-s="neutral">Neutral</button>
+          <button role="tab" aria-selected="false" data-s="anger">Anger</button>
+          <button role="tab" aria-selected="false" data-s="shame">Shame</button>
+          <button role="tab" aria-selected="false" data-s="pride">Pride</button>
+        </div>
+        <blockquote class="strat-line" id="stratLine"></blockquote>
+        <p class="strat-rule" id="stratRule"></p>
+      </article>
+
+      <article class="cell cell-turns">
+        <h3>Polite turn-taking</h3>
+        <p>Alex waits for 2.5 seconds of silence before treating an answer as finished, and stops mid-sentence to listen if the participant starts talking.</p>
+      </article>
+
+      <article class="cell cell-sync">
+        <h3>Lines up with EmotiBit and EEG</h3>
+        <p>Every event carries a millisecond timestamp, and markers can stream to LabRecorder over Lab Streaming Layer.</p>
+        <pre class="code mono" aria-label="Example event">{ "type": "probe_response",
+  "t_epoch_ms": 1795020681848.3,
+  "phase": "b2_condition_anger",
+  "valence": 3, "arousal": 7 }</pre>
+      </article>
+
+      <article class="cell cell-review">
+        <h3>Review every session</h3>
+        <p>See how affect moved through each part, what the participant reported, how closely the two agreed, and exactly what was said.</p>
+        <a class="cell-link" href="review.html">Open sessions<svg class="ico"><use href="#i-arrow"/></svg></a>
+      </article>
+    </div>
+  </section>
+
+  <!-- ============ DESIGN PRINCIPLES ============ -->
+  <section class="ov-section ov-wrap reveal principles" aria-labelledby="prinTitle">
+    <div class="sec-head">
+      <h2 id="prinTitle">Designed not to become part of the experiment</h2>
+      <p>In an emotion study, the interface is itself a stimulus. These choices keep it out of the way.</p>
+    </div>
+    <dl class="prin">
+      <div><dt>Colour carries emotion in one place only</dt><dd>Participant screens stay cool and neutral. The only colour that responds to feelings is the subtitle window in the other-mediated condition.</dd></div>
+      <div><dt>Nothing breathes on the rest screens</dt><dd>Pulsing or breathing animations can pace breathing and shift heart-rate variability, so rest and break screens are completely still.</dd></div>
+      <div><dt>Every participant sees the same screen</dt><dd>The app ignores the computer's dark mode and other display preferences that would change the stimulus.</dd></div>
+      <div><dt>A face that can't make expressions</dt><dd>Alex is a set of rings that ripple only while speaking, so no facial expression can sway how the participant feels.</dd></div>
+    </dl>
+  </section>
+</main>
+
+<footer class="ov-foot">
+  <div class="ov-wrap foot-inner">
+    <div>
+      <div class="brand brand-light">
+        <svg class="brand-mark"><use href="#i-echo"/></svg>
+        <span class="brand-name">Affective Echoes</span>
+      </div>
+      <p>Emotional awareness in live conversation with an AI partner. Research prototype.</p>
+    </div>
+    <a class="btn btn-foot btn-lg" href="index.html">Run a session<svg class="ico"><use href="#i-arrow"/></svg></a>
+  </div>
+</footer>
+
+<nav class="bottom-nav" aria-label="Researcher views">
+  <a href="index.html"><svg class="ico"><use href="#i-console"/></svg>Run</a>
+  <a href="review.html"><svg class="ico"><use href="#i-sessions"/></svg>Sessions</a>
+  <a href="overview.html" aria-current="page"><svg class="ico"><use href="#i-overview"/></svg>Overview</a>
+</nav>
+
+<script src="config.js"></script>
+<script src="affect.js"></script>
+<script src="overview.js"></script>
+</body>
+</html>
