@@ -114,9 +114,17 @@ def model_sha_from_hub(url):
 
 # ---------------------------------------------------------------------------
 def get_llama(out: Path, tag, cache: Path):
-    api = f"{URLS['llama_api']}/tags/{tag}" if tag else f"{URLS['llama_api']}/latest"
     try:
-        rel = json.loads(fetch(api))
+        if tag:
+            rel = json.loads(fetch(f"{URLS['llama_api']}/tags/{tag}"))
+        else:
+            # The newest release that ships the Windows builds. ("latest" can be a notes-only
+            # release, and the numbered b-builds are marked as pre-releases.)
+            rels = json.loads(fetch(f"{URLS['llama_api']}?per_page=30"))
+            rel = next((r for r in rels if all(any(re.search(p, a["name"]) for a in r["assets"])
+                                                for p in ASSETS.values())), None)
+            if not rel:
+                raise SystemExit("No recent llama.cpp release has the Windows builds. Pin one with --llama-tag.")
     except urllib.error.HTTPError as e:
         raise SystemExit(f"Couldn't find llama.cpp release {tag or 'latest'} (HTTP {e.code}). "
                          "Check the tag at https://github.com/ggml-org/llama.cpp/releases, or leave --llama-tag out.")
