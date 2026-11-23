@@ -45,7 +45,7 @@ DATA = ROOT / "data"
 def load_dotenv():
     env = ROOT / ".env"
     if env.exists():
-        for line in env.read_text().splitlines():
+        for line in env.read_text(encoding="utf-8").splitlines():
             line = line.strip()
             if line and not line.startswith("#") and "=" in line:
                 k, v = line.split("=", 1)
