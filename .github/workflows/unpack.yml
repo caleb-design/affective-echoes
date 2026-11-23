@@ -1,0 +1,30 @@
+name: Unpack uploaded source
+# One-time helper: the browser upload could only send a zip, so this extracts it
+# into proper folders and commits them. Safe to keep; it does nothing without the zip.
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - affective-echoes-upload.zip
+      - .github/workflows/unpack.yml
+permissions:
+  contents: write
+jobs:
+  unpack:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Extract and commit
+        run: |
+          if [ ! -f affective-echoes-upload.zip ]; then echo "No zip, nothing to do"; exit 0; fi
+          mkdir -p /tmp/src && unzip -q affective-echoes-upload.zip -d /tmp/src
+          SRC=/tmp/src/affective-echoes
+          [ -d "$SRC" ] || SRC=/tmp/src
+          rm -rf "$SRC/.github"          # workflow files are added separately
+          cp -a "$SRC"/. .
+          git rm -q affective-echoes-upload.zip
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Unpack project folders from uploaded zip"
+          git push
